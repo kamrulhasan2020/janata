@@ -4,5 +4,12 @@ from .import views
 app_name = 'main'
 
 urlpatterns = [
-    path('', views.home, name='home'),
+    path('', views.HomeView.as_view(), name='home'),
+    path('trade/', views.Trades.as_view(), name='trades'),
+    path('update/', views.update, name='update'),
+    path('delete/', views.delete, name='delete'),
+    path('latest-entry/', views.LatestEntry.as_view(), name='latest_entry'),
+    path('load-data/', views.load_data_from_csv, name='load_data'),
+    path('line-chart/', views.line_chart, name='linechart'),
+    path('bar-chart/', views.bar_chart, name='barchart'),
 ]
