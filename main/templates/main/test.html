@@ -1,101 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-    <script src="https://cdn.jsdelivr.net/npm/vue-apexcharts"></script>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <title>Home</title>
-</head>
-<body>
-    <br>
-  <div class="container">
-    <div class="dropdown">
-      <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown">
-        Choose A Trade Code
-      </button>
-      <ul class="dropdown-menu">
-        {% for code in trade_codes %}
-          <li><a class="dropdown-item" trade_code={{code.trade_code}} href="#">{{code.trade_code}}</a></li>
-        {% endfor %}
-      </ul>
-    </div>
-    <br>
-    <br>
-    <div class="chart-holder">
-      <h4 style ="color: purple" id="code_viewer" align="center"></h4>
-      <div class="container" style="display: block" id="all_chart"></div>
-      <div class="container" id="code_chart"></div>
-    </div>
-      <br>
-  <center>
-   <button type="button" id="new_entry" class="btn btn-outline-success" style="display: block">Add A New Entry</button><br>
-   <button type="button" id ="cancel" class="btn btn-outline-danger" style="display: none">Cancel</button>
- </center>
-   <div class="form" id="form_holder" style="display: none">
-   <form method="post" class="ajax" enctype="multipart/form-data" id="new_entry_form">
-        <label for="date_in" class="form-label">Date</label>
-        <input type="date" id="date_in" class="form-control" name="date">
-        <br>
-
-        <label for="trade_code_in" class="form-label">Trade Code</label><br>
-        <input type="text" id="trade_code_in" class="form-control" name="trade_code">
-        <br>
-
-        <label for="high_in" class="form-label">High</label><br>
-        <input type="number" id="high_in" class="form-control" name="high">
-        <br>
-
-        <label for="low_in" class="form-label">Low</label><br>
-        <input type="number" id="low_in" class="form-control" name="low">
-        <br>
-
-        <label for="open_in" class="form-label">Open</label><br>
-        <input type="number" id="open_in" class="form-control" name="open">
-        <br>
-
-        <label for="close_in" class="form-label">Close</label><br>
-        <input type="number" id="close_in" class="form-control" name="close">
-        <br>
-
-        <label for="volume_in" class="form-label">Volume</label><br>
-        <input type="number" id="volume_in" class="form-control" name="volume">
-        <br>
-
-
-        <button type="submit" class="btn btn-outline-primary" id="entry_submit">Submit</button>
-    </form>
-  </div>
-  <br>
-    <div class="panel panel-default">
-        <div class="panel-body">
-          <div class="tbl_user_data"></div>
-        </div>
-      </div>
-  </div>
-  <div class="container">
-    <ul class="pagination">
-      <li class="page-item"><a class="page-link" id="Previous" href="#">Previous</a></li>
-      <li class="page-item"><a class="page-link" id="Next"href="#">Next</a></li>
-  </ul>
-  </div>
-</body>
-
-
-
 <script>
 $(document).ready(function(){
   $.get("{% url 'main:trades'%}", function(data, status){
       var tbl = '';
-      $("#Previous").attr("href", data['previous']);
-      $("#Next").attr("href", data['next']);
+      console.log(data);
       table_data = data['results']
-      let volume = [];
-      let close = [];
-      let date = [];
       tbl +='<table class="table table-hover">'
           tbl +='<thead>';
               tbl +='<tr>';
@@ -114,15 +22,12 @@ $(document).ready(function(){
                   var row_id = val['pk']
                   tbl +='<tr display="block" id="'+row_id+'" row_id="'+row_id+'">';
                       tbl +='<td ><div class="row_data" edit_type="click" col_name="date">'+val['date']+'</div></td>';
-                      date.push(val['date']);
                       tbl +='<td ><div class="row_data" edit_type="click" col_name="trade_code">'+val['trade_code']+'</div></td>';
                       tbl +='<td ><div class="row_data" edit_type="click" col_name="high">'+val['high']+'</div></td>';
                       tbl +='<td ><div class="row_data" edit_type="click" col_name="low">'+val['low']+'</div></td>';
                       tbl +='<td ><div class="row_data" edit_type="click" col_name="open">'+val['open']+'</div></td>';
                       tbl +='<td ><div class="row_data" edit_type="click" col_name="close">'+val['close']+'</div></td>';
-                      close.push(val['close']);
                       tbl +='<td ><div class="row_data" edit_type="click" col_name="volume">'+val['volume']+'</div></td>';
-                      volume.push(val['volume']);
                       tbl +='<td>';
                       tbl += '<button type="button" edit_type="button" class="btn btn-outline-danger" id="delete_button">Delete</button>';
                       tbl +='</td>';
@@ -131,54 +36,57 @@ $(document).ready(function(){
       tbl +='</tbody>';
       tbl +='</table>'
       $('.tbl_user_data').html(tbl);
-
-      var options = {
-      series: [{
-      name: 'Volume',
-      type: 'column',
-      data: volume
-    }, {
-      name: 'Close',
-      type: 'line',
-      data: close
-    }],
-      chart: {
-      height: 350,
-      type: 'line',
-    },
-    stroke: {
-      width: [0, 4]
-    },
-    title: {
-      text: "close/volume/date"
-    },
-    dataLabels: {
-      enabled: false,
-      enabledOnSeries: [1]
-    },
-    labels: date,
-    xaxis: {
-      type: 'date'
-    },
-    yaxis: [{
-      title: {
-        text: 'Volume',
-      },
-
-    }, {
-      opposite: true,
-      title: {
-        text: 'Close',
-      }
-    }]
-    };
-
-    var chart2 = new ApexCharts(document.querySelector("#code_chart"), options);
-    chart2.render();
-
-
   });
+  $.ajax({
+      type: "GET",
+      url: "{% url 'main:chart' %}",
+      success: function (data) {
+        var options = {
+        series: [{
+        name: 'Volume',
+        type: 'column',
+        data: data['data2']
+      }, {
+        name: 'Close',
+        type: 'line',
+        data: data['data']
+      }],
+        chart: {
+        height: 350,
+        type: 'line',
+      },
+      stroke: {
+        width: [0, 4]
+      },
+      title: {
+        text: "close-volume-date"
+      },
+      dataLabels: {
+        enabled: false,
+        enabledOnSeries: [1]
+      },
+      labels: data['labels'],
+      xaxis: {
+        type: 'date',
+      },
+      yaxis: [{
+        title: {
+          text: 'Volume',
+        },
 
+      }, {
+        opposite: true,
+        title: {
+          text: 'Close',
+        }
+      }]
+      };
+
+      var chart = new ApexCharts(document.querySelector("#all_chart"), options);
+      chart.render();
+
+    }
+    });
   $(document).on('click', '.dropdown-item', function(event){
     event.preventDefault();
     $('#all_chart').css('display', 'none');

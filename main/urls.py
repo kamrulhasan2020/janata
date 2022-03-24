@@ -11,5 +11,4 @@ urlpatterns = [
     path('delete/', views.delete, name='delete'),
     path('latest-entry/', views.LatestEntry.as_view(), name='latest_entry'),
     path('load-data/', views.load_data_from_csv, name='load_data'),
-    path('chart/', views.chart, name='chart'),
 ]
